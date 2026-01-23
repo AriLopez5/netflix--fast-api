@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego: Adivina el Número</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        .game-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .game-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .intentos {
+            font-size: 18px;
+            font-weight: bold;
+            color: #e50914;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .mensaje {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .mensaje.exito {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .mensaje.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .mensaje.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .game-form {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .game-input {
+            padding: 10px;
+            font-size: 18px;
+            width: 150px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .game-button {
+            padding: 10px 30px;
+            font-size: 18px;
+            background: #e50914;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        .game-button:hover {
+            background: #b8070e;
+        }
+        .game-button.secondary {
+            background: #555;
+        }
+        .game-button.secondary:hover {
+            background: #333;
+        }
+        .historial {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .historial h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .historial ul {
+            list-style: none;
+            padding: 0;
+        }
+        .historial li {
+            padding: 8px;
+            margin: 5px 0;
+            background: #f0f0f0;
+            border-radius: 3px;
+        }
+        .instrucciones {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ffeaa7;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="game-title">🎮 Adivina el Número</h1>
+
+        <div class="intentos">
+            Intentos restantes: {{ intentos_restantes }} / 10
+        </div>
+
+        {% if mensaje %}
+        <div class="mensaje {% if 'Felicidades' in mensaje %}exito{% elif intentos_restantes == 0 %}error{% else %}info{% endif %}">
+            {{ mensaje }}
+        </div>
+        {% endif %}
+
+        {% if juego_activo %}
+        <form method="post" action="/juego_adivina" class="game-form">
+            <input 
+                type="number" 
+                name="numero" 
+                min="1" 
+                max="100" 
+                class="game-input"  
+                required 
+                autofocus
+            >
+            <br>
+            <button type="submit" class="game-button">Adivinar</button>
+        </form>
+        {% else %}
+        <div style="text-align: center;">
+            <a href="/juego_adivina/reiniciar">
+                <button class="game-button">🔄 Jugar de Nuevo</button>
+            </a>
+        </div>
+        {% endif %}
+
+        {% if historial %}
+        <div class="historial">
+            <h3>📝 Historial de Intentos</h3>
+            <ul>
+                {% for intento in historial %}
+                <li>{{ intento }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/">
+                <button class="game-button secondary">← Volver al Inicio</button>
+            </a>
+            {% if juego_activo or historial %}
+            <a href="/juego_adivina/reiniciar">
+                <button class="game-button secondary">🔄 Reiniciar Juego</button>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

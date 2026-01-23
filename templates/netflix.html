@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .rating {
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 15px;
+    }
+    
+    .rating-10 { background: #d4edda; color: #155724; }
+    .rating-9 { background: #d4edda; color: #155724; }
+    .rating-8 { background: #d1f2eb; color: #0c5460; }
+    .rating-7 { background: #d1ecf1; color: #0c5460; }
+    .rating-6 { background: #fff1c1; color: #856404; }
+    .rating-5 { background: #fff1c1; color: #856404; }
+    .rating-4 { background: #ffe5d0; color: #856404; }
+    .rating-3 { background: #f8d7da; color: #721c24; }
+    .rating-2 { background: #f8d7da; color: #721c24; }
+    .rating-1 { background: #f8d7da; color: #721c24; }
+    .rating-0 { background: #f8d7da; color: #721c24; }
+    .rating-na { background: #e9ecef; color: #6c757d; }
+    
+    .visto-si {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 15px;
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .visto-no {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 15px;
+        background: #f8d7da;
+        color: #721c24;
+    }
+</style>
+
+<div>
+    <h1>Mi Colección de Netflix</h1>
+    
+    <!-- Tabla de Películas -->
+    <h2 style="color: #667eea; margin-top: 30px; margin-bottom: 15px;">🎬 Películas</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Género</th>
+                <th>Calificación</th>
+                <th>Visto</th>
+                <th>Nota</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% set peliculas = archivos|selectattr("Tipo", "equalto", "Película")|list %}
+            {% if peliculas %}
+                {% for movie in peliculas %}
+                <tr>
+                    <td>{{ movie.ID }}</td>
+                    <td>{{ movie.Nombre }}</td>
+                    <td>{{ movie.Genero or 'N/A' }}</td>
+                    <td>
+                        {% if movie.Calificacion %}
+                            {% set rating_class = "rating-" ~ (movie.Calificacion|int) %}
+                            <span class="rating {{ rating_class }}">{{ movie.Calificacion }}</span>
+                        {% else %}
+                            <span class="rating rating-na">N/A</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if movie.Visto %}
+                            <span class="visto-si">SÍ</span>
+                        {% else %}
+                            <span class="visto-no">NO</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ movie.Nota or '-' }}</td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="6" class="empty">No hay películas registradas</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    <!-- Tabla de Series -->
+    <h2 style="color: #667eea; margin-top: 40px; margin-bottom: 15px;">📺 Series</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Género</th>
+                <th>Calificación</th>
+                <th>Visto</th>
+                <th>Nota</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% set series = archivos|selectattr("Tipo", "equalto", "Serie")|list %}
+            {% if series %}
+                {% for movie in series %}
+                <tr>
+                    <td>{{ movie.ID }}</td>
+                    <td>{{ movie.Nombre }}</td>
+                    <td>{{ movie.Genero or 'N/A' }}</td>
+                    <td>
+                        {% if movie.Calificacion %}
+                            {% set rating_class = "rating-" ~ (movie.Calificacion|int) %}
+                            <span class="rating {{ rating_class }}">{{ movie.Calificacion }}</span>
+                        {% else %}
+                            <span class="rating rating-na">N/A</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if movie.Visto %}
+                            <span class="visto-si">SÍ</span>
+                        {% else %}
+                            <span class="visto-no">NO</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ movie.Nota or '-' }}</td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="6" class="empty">No hay series registradas</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    <p style="margin-top: 30px; color: #666; text-align: center;">
+        Total: {{ peliculas|length }} películas y {{ series|length }} series
+    </p>
+</div>
+{% endblock %}

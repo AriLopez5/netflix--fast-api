@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}403 - Acceso Denegado{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-icon">{{ icon | default('🚫') }}</div>
+    <h1>Acceso Denegado</h1>
+    <div class="error-code">HTTP 403 - Forbidden</div>
+    
+    <p class="error-message">
+        {{ message | default('No tienes los permisos necesarios para acceder a este recurso.') }}
+    </p>
+    
+    {% if required_role %}
+    <div class="required-role">
+        <strong>🔐 Permisos requeridos:</strong><br>
+        {{ required_role }}
+    </div>
+    {% endif %}
+    
+    {% if current_role %}
+    <div class="info-box">
+        🔑 Tu rol actual: <strong>{{ current_role }}</strong>
+    </div>
+    {% endif %}
+    
+    <div class="info-box">
+        💡 Si crees que deberías tener acceso, contacta con el administrador del sistema
+    </div>
+    
+    <div class="actions">
+        <a href="/" class="btn btn-primary">🏠 Volver al Inicio</a>
+        <a href="javascript:history.back()" class="btn btn-secondary">← Página Anterior</a>
+    </div>
+</div>
+{% endblock %}

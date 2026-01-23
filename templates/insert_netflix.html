@@ -1,0 +1,48 @@
+{%extends "base.html" %}
+{% block content %}
+<div class="form-container">
+        <h1>Insertar Netflix </h1>
+        <form method="post" action="/do_insertar_netflix" enctype="application/x-www-form-urlencoded">
+            <div class="form-group">
+                <label for="tipo">Tipo:</label>
+                <select id="tipo" name="tipo" required>
+                    <option value="">Selecciona un tipo</option>
+                    <option value="Película">Película</option>
+                    <option value="Serie">Serie</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" placeholder="Introduce el nombre" required>
+            </div>
+
+            <div class="form-group">
+                <label for="genero">Género:</label>
+                <input type="text" id="genero" name="genero" placeholder="Introduce el género">
+            </div>
+
+            <div class="form-group">
+                <label for="calificacion">Calificación:</label>
+                <input type="number" id="calificacion" name="calificacion" step="0.1" min="0" max="10" placeholder="0.0 - 10.0">
+            </div>
+
+            <div class="form-group">
+                <label for="visto">Visto:</label>
+                <select id="visto" name="visto">
+                    <option value="">Selecciona</option>
+                    <option value="si">Sí</option>
+                    <option value="no">No</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="nota">Nota:</label>
+                <textarea id="nota" name="nota" rows="4" placeholder="Añade una nota opcional"></textarea>
+            </div>
+            
+            <button type="submit">Guardar</button>
+        </form>
+        
+    </div>
+{% endblock %}

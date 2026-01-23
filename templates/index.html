@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Bienvenido - Netflix API{% endblock %}
+
+{% block content %}
+
+    <div class="intro-container">
+        <div class="logo">
+            <h1>🎬 Netflix API</h1>
+            <p>Tu gestor personal de películas y series</p>
+        </div>
+
+        <div class="welcome-text">
+            <h2>¡Bienvenido!</h2>
+            <p>Esta aplicación te permite gestionar tu colección de películas y series de Netflix de forma fácil y organizada.</p>
+        </div>
+
+        <div class="features">
+            <a href="/netflix" class="feature-item">
+                <div class="feature-item-content">
+                    <div class="feature-icon">📺</div>
+                    <div class="feature-content">
+                        <h3>Ver tu lista</h3>
+                        <p>Consulta todas las películas y series que has registrado con información detallada como género, calificación y notas personales.</p>
+                    </div>
+                </div>
+            </a>
+
+            <a href="/insert_netflix" class="feature-item">
+                <div class="feature-item-content">
+                    <div class="feature-icon">➕</div>
+                    <div class="feature-content">
+                        <h3>Añadir contenido</h3>
+                        <p>Registra nuevas películas o series indicando el tipo, nombre, género, calificación y si ya las has visto.</p>
+                    </div>
+                </div>
+            </a>
+
+            <a href="/edit_netflix" class="feature-item">
+                <div class="feature-item-content">
+                    <div class="feature-icon">✏️</div>
+                    <div class="feature-content">
+                        <h3>Editar información</h3>
+                        <p>Modifica los datos de tus registros existentes para mantener tu lista siempre actualizada.</p>
+                    </div>
+                </div>
+            </a>
+
+            <a href="/borrar_netflix" class="feature-item">
+                <div class="feature-item-content">
+                    <div class="feature-icon">🗑️</div>
+                    <div class="feature-content">
+                        <h3>Eliminar registros</h3>
+                        <p>Borra las películas o series que ya no quieres tener en tu colección.</p>
+                    </div>
+                </div>
+            </a>
+                        <a href="/logout" class="feature-item">
+                <div class="feature-item-content">
+                    <div class="feature-icon">🚪</div>
+                    <div class="feature-content">
+                        <h3>Cerrar sesión</h3>
+                        <p>Protege tu información cerrando sesión cuando termines de usar la aplicación.</p>
+                    </div>
+                </div>
+
+            </a>
+        </div>
+    </div>
+{% endblock %}

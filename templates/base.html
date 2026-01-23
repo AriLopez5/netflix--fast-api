@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Netflix API{% endblock %}</title>
+    <link rel="stylesheet" href="/static/styles.css?v=2">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h1><a href="/" style="color: #667eea; text-decoration: none;">🎬 Netflix API</a></h1>
+        </div>
+        
+        {% if request.session.get('user_id') %}
+        <div class="user-info-box">
+            <div class="user-icon">👤</div>
+            <div class="user-details">
+                <div class="user-label">Usuario:</div>
+                <div class="user-name">{{ request.session.get('username', 'Invitado') }}</div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <nav class="sidebar-menu">
+            <a href="/netflix" class="menu-btn">📺 Ver Lista</a>
+            <a href="/insert_netflix" class="menu-btn">➕ Insertar</a>
+            <a href="/edit_netflix" class="menu-btn">✏️ Editar</a>
+            <a href="/borrar_netflix" class="menu-btn">🗑️ Borrar</a>
+            <a href="/juego_adivina" class="menu-btn">🎮 Juego: Adivina</a>
+            <a href="/login" class="menu-btn">🔐 Login</a>
+
+            {% block menu %}{% endblock %}
+        </nav>
+    </aside>
+    
+    <div class="container">
+        {% block content %}
+        <h2 style="color: #667eea; text-align: center; margin-bottom: 30px;">Bienvenido a tu gestor de Netflix</h2>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; max-width: 800px; margin: 0 auto;">
+            <a href="/netflix" class="menu-btn" style="text-decoration: none;">
+                📺 Ver Películas y Series
+            </a>
+            <a href="/insert_netflix" class="menu-btn" style="text-decoration: none;">
+                ➕ Añadir Contenido
+            </a>
+            <a href="/edit_netflix" class="menu-btn" style="text-decoration: none;">
+                ✏️ Editar
+            </a>
+            <a href="/borrar_netflix" class="menu-btn" style="text-decoration: none;">
+                🗑️ Eliminar
+            </a>
+            <a href="/juego_adivina" class="menu-btn" style="text-decoration: none;">
+                🎮 Juego: Adivina el Número
+            </a>
+        </div>
+        {% endblock %}
+    </div>
+
+    <footer>
+        {% block footer %}
+        <strong>FastAPI Netflix App</strong> - Gestión de Películas y Series<br>
+        © 2025<br>
+        Hecho por Ariadna y Claude ❤️
+        {% endblock %}
+    </footer>
+
+    {% block script %}{% endblock %}
+</body>
+</html>

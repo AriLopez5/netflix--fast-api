@@ -1,0 +1,51 @@
+{%extends "base.html" %}
+{% block content %}
+<div class="login-container">
+        <h2>Crear Nueva Cuenta</h2>
+        
+        {% if error %}
+        <div class="error-message">
+            {{ error }}
+        </div>
+        {% endif %}
+        
+        <form method="POST" action="/registro">
+            <div class="form-group">
+                <label for="username">Usuario:</label>
+                <input type="text" id="username" name="username" 
+                       value="{{ username if username else '' }}" 
+                       required autofocus>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" 
+                       required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password_confirm">Confirmar Contraseña:</label>
+                <input type="password" id="password_confirm" name="password_confirm" 
+                       required>
+            </div>
+            
+            <button type="submit" class="btn-login" style="background: #28a745;">Crear Cuenta</button>
+        </form>
+        
+        <div class="register-link" style="text-align: center; margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 2px dashed #dee2e6;">
+            <p style="margin: 0 0 10px 0; color: #6c757d; font-size: 14px;">
+                ¿Ya tienes una cuenta?
+            </p>
+            <a href="/login" class="btn-register" style="display: inline-block; padding: 12px 30px; background: #007bff; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s ease;">
+                🔐 Iniciar Sesión
+            </a>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="/" class="btn-secondary" style="display: inline-block; padding: 12px 30px; background: #6c757d; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s ease;">
+                🏠 Volver al Inicio
+            </a>
+        </div>
+        
+    </div>
+{% endblock %}
