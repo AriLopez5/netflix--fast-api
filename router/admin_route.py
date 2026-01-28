@@ -33,29 +33,6 @@ def verificar_admin(request: Request):
 router = APIRouter(dependencies=[Depends(verificar_admin)])
 templates = Jinja2Templates(directory="templates")
 
-# RUTA INSERTAR - Solo admin
-@router.get("/insert_netflix")
-async def insert_netflix(request: Request):
-    """Formulario para insertar película/serie - Solo admin"""
-    return templates.TemplateResponse("insert_netflix.html", {"request": request})
-
-# RUTA INSERTADO - Solo admin
-@router.post("/do_insertar_netflix")
-async def do_insertar_netflix(request: Request,
-    tipo: Annotated[str, Form()],
-    nombre: Annotated[str, Form()],
-    genero: Annotated[str, Form()] = None,
-    calificacion: Annotated[float, Form()] = None,
-    visto: Annotated[str, Form()] = "",
-    nota: Annotated[str, Form()] = None,
-):
-    # Convertir "si"/"no" a booleano
-    visto_bool = True if visto.lower() == "si" else False
-    netflix_repo = AriadnaRepository(database)
-    netflix = Netflix(0, tipo, nombre, genero, calificacion, visto_bool, nota)
-    netflix_repo.insertar_netflix(netflix)
-    return templates.TemplateResponse("do_insert_netflix.html", {"request": request})
-
 # RUTA BORRAR - Solo admin
 @router.get("/borrar_netflix")
 async def borrar_netflix(request: Request):

@@ -7,7 +7,7 @@ from data.database import database
 from data.ariadna_repository import AriadnaRepository
 from domain.netflix import Netflix
 from starlette.middleware.sessions import SessionMiddleware
-from router import juego_adivina, auth_route, admin_route
+from router import juego_adivina, auth_route, admin_route, user_route, perfil_route
 from utils.dependencies import require_auth
 import uvicorn
 
@@ -33,6 +33,12 @@ app.include_router(juego_adivina.router)
 
 # Incluir el router de autenticación
 app.include_router(auth_route.router)
+
+# Incluir el router de usuarios (insertar)
+app.include_router(user_route.router)
+
+# Incluir el router de perfil
+app.include_router(perfil_route.router)
 
 # Incluir el router de administración
 app.include_router(admin_route.router)

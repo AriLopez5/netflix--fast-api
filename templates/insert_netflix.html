@@ -1,7 +1,14 @@
 {%extends "base.html" %}
 {% block content %}
 <div class="form-container">
-        <h1>Insertar Netflix </h1>
+        <h1>Insertar Película/Serie </h1>
+        
+        <div class="info-valoracion">
+            <h3>⭐ Información importante</h3>
+            <p>📝 Los datos que ingreses (calificación y nota) se guardarán como tu valoración personal.</p>
+            <p>👤 Podrás ver tu valoración en "Mi Perfil".</p>
+        </div>
+        
         <form method="post" action="/do_insertar_netflix" enctype="application/x-www-form-urlencoded">
             <div class="form-group">
                 <label for="tipo">Tipo:</label>
@@ -23,12 +30,13 @@
             </div>
 
             <div class="form-group">
-                <label for="calificacion">Calificación:</label>
+                <label for="calificacion">Tu Calificación (0-10):</label>
                 <input type="number" id="calificacion" name="calificacion" step="0.1" min="0" max="10" placeholder="0.0 - 10.0">
+                <small style="color: #666;">Esta será tu valoración personal</small>
             </div>
 
             <div class="form-group">
-                <label for="visto">Visto:</label>
+                <label for="visto">¿La has visto?:</label>
                 <select id="visto" name="visto">
                     <option value="">Selecciona</option>
                     <option value="si">Sí</option>
@@ -37,8 +45,9 @@
             </div>
 
             <div class="form-group">
-                <label for="nota">Nota:</label>
-                <textarea id="nota" name="nota" rows="4" placeholder="Añade una nota opcional"></textarea>
+                <label for="nota">Tu Comentario:</label>
+                <textarea id="nota" name="nota" rows="4" placeholder="¿Qué te pareció? Añade tus comentarios..."></textarea>
+                <small style="color: #666;">Este comentario aparecerá en tu perfil</small>
             </div>
             
             <button type="submit">Guardar</button>

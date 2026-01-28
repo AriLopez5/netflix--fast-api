@@ -1,0 +1,18 @@
+USE ariadna;
+DROP TABLE IF EXISTS Valoraciones;
+CREATE TABLE Valoraciones (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    pelicula_id INT NOT NULL,
+    nombre_pelicula VARCHAR(255) NOT NULL,
+    genero VARCHAR(100),
+    nota DECIMAL(3,1),
+    comentario TEXT,
+    fecha_valoracion DATETIME DEFAULT NOW(),
+    FOREIGN KEY (usuario_id) REFERENCES Usuarios(id) ON DELETE CASCADE,
+    FOREIGN KEY (pelicula_id) REFERENCES Netflix(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_usuario_pelicula (usuario_id, pelicula_id),
+    INDEX idx_usuario (usuario_id),
+    INDEX idx_pelicula (pelicula_id),
+    INDEX idx_fecha (fecha_valoracion)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

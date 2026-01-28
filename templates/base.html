@@ -27,8 +27,13 @@
             <a href="/insert_netflix" class="menu-btn">➕ Insertar</a>
             <a href="/edit_netflix" class="menu-btn">✏️ Editar</a>
             <a href="/borrar_netflix" class="menu-btn">🗑️ Borrar</a>
+            <a href="/perfil" class="menu-btn">👤 Mi Perfil</a>
             <a href="/juego_adivina" class="menu-btn">🎮 Juego: Adivina</a>
-            <a href="/login" class="menu-btn">🔐 Login</a>
+            {% if request.session.get('user_id') %}
+                <a href="/logout" class="menu-btn">🚪 Logout</a>
+            {% else %}
+                <a href="/login" class="menu-btn">🔐 Login</a>
+            {% endif %}
 
             {% block menu %}{% endblock %}
         </nav>

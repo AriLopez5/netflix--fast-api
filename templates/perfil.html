@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Perfil - {{ usuario.username }}{% endblock %}
+
+{% block content %}
+
+
+<div class="perfil-container">
+    <!-- Header del perfil -->
+    <div class="perfil-header">
+        <h1>
+            👤 
+            {{ usuario.username }}
+            <span class="username-badge">Usuario</span>
+        </h1>
+        <p style="margin: 0; opacity: 0.9;">Miembro desde siempre 🎬</p>
+    </div>
+    
+    <!-- Estadísticas -->
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-value">{{ estadisticas.total }}</div>
+            <div class="stat-label">Valoraciones</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-value">{{ estadisticas.promedio }}</div>
+            <div class="stat-label">Promedio</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">🔝</div>
+            <div class="stat-value">{{ estadisticas.maxima }}</div>
+            <div class="stat-label">Máxima</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">📉</div>
+            <div class="stat-value">{{ estadisticas.minima }}</div>
+            <div class="stat-label">Mínima</div>
+        </div>
+    </div>
+    
+    <!-- Sección de valoraciones -->
+    <div class="valoraciones-section">
+        <h2>🎬 Mis Valoraciones</h2>
+        
+        {% if valoraciones %}
+            {% for valoracion in valoraciones %}
+            <div class="valoracion-item">
+                <div class="valoracion-header">
+                    <div class="pelicula-info">
+                        <div class="pelicula-nombre">
+                            {{ valoracion.pelicula_nombre if valoracion.pelicula_nombre else 'Película #' + valoracion.pelicula_id|string }}
+                        </div>
+                        {% if valoracion.genero %}
+                        <span class="pelicula-tipo">{{ valoracion.genero }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="valoracion-puntuacion">
+                        <span class="stars">⭐</span>
+                        <span class="puntuacion-numero">{{ valoracion.puntuacion }}</span>
+                    </div>
+                </div>
+                
+                {% if valoracion.comentario %}
+                <div class="valoracion-comentario">
+                    "{{ valoracion.comentario }}"
+                </div>
+                {% endif %}
+                
+                <div class="valoracion-fecha">
+                    📅 {{ valoracion.fecha if valoracion.fecha else 'Fecha no disponible' }}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-valoraciones">
+                <div class="no-valoraciones-icon">🎭</div>
+                <p>Aún no has valorado ninguna película o serie</p>
+                <a href="/netflix" class="btn-add-valoracion">Ver catálogo</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
