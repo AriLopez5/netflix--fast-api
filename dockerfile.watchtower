@@ -1,0 +1,221 @@
+# 🔄 Docker Compose con Auto-Updates (Watchtower)
+
+# Este ejemplo muestra cómo configurar Watchtower para actualizar automáticamente
+# tu aplicación FastAPI cuando se publique una nueva imagen en Docker Hub.
+
+version: '3.8'
+
+services:
+  # ============================================================================
+  # APLICACIÓN FASTAPI
+  # ============================================================================
+  fastapi-web:
+    image: ariadnalopez5/nueva-app-fastapi:latest  # ← REEMPLAZAR con tu usuario de Docker Hub
+    container_name: nueva-app-fastapi
+    restart: unless-stopped
+    
+    ports:
+      - "8000:8000"
+    
+    environment:
+      - ENV=production
+      - LOG_LEVEL=info
+    
+    # Labels para Watchtower
+    labels:
+      # Habilitar auto-update para este contenedor
+      - "com.centurylinklabs.watchtower.enable=true"
+      
+      # No solo monitorear, sino actualizar automáticamente
+      - "com.centurylinklabs.watchtower.monitor-only=false"
+    
+    # Healthcheck para verificar que la app está funcionando
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    networks:
+      - app-network
+
+  # ============================================================================
+  # WATCHTOWER (AUTO-UPDATER)
+  # ============================================================================
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower
+    restart: unless-stopped
+    
+    volumes:
+      # Necesario para que Watchtower pueda controlar Docker
+      - /var/run/docker.sock:/var/run/docker.sock
+    
+    environment:
+      # ========================================================================
+      # CONFIGURACIÓN BÁSICA
+      # ========================================================================
+      
+      # Chequear cada hora (3600 segundos)
+      # Valores comunes: 300 (5 min), 600 (10 min), 1800 (30 min), 3600 (1 hora)
+      - WATCHTOWER_POLL_INTERVAL=3600
+      
+      # Solo actualizar contenedores con label "watchtower.enable=true"
+      - WATCHTOWER_LABEL_ENABLE=true
+      
+      # Limpiar imágenes viejas después de actualizar (ahorra espacio)
+      - WATCHTOWER_CLEANUP=true
+      
+      # Incluir contenedores detenidos en el monitoreo
+      - WATCHTOWER_INCLUDE_STOPPED=true
+      
+      # ========================================================================
+      # NOTIFICACIONES (Opcional)
+      # ========================================================================
+      
+      # Descomenta UNA de las siguientes opciones:
+      
+      # --- OPCIÓN 1: Email ---
+      # - WATCHTOWER_NOTIFICATIONS=email
+      # - WATCHTOWER_NOTIFICATION_EMAIL_FROM=watchtower@example.com
+      # - WATCHTOWER_NOTIFICATION_EMAIL_TO=admin@example.com
+      # - WATCHTOWER_NOTIFICATION_EMAIL_SERVER=smtp.gmail.com
+      # - WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PORT=587
+      # - WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER=your-email@gmail.com
+      # - WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD=your-app-password
+      
+      # --- OPCIÓN 2: Slack ---
+      # - WATCHTOWER_NOTIFICATIONS=slack
+      # - WATCHTOWER_NOTIFICATION_SLACK_HOOK_URL=https://hooks.slack.com/services/XXX/YYY/ZZZ
+      # - WATCHTOWER_NOTIFICATION_SLACK_IDENTIFIER=watchtower-production
+      # - WATCHTOWER_NOTIFICATION_SLACK_CHANNEL=#deployments
+      
+      # --- OPCIÓN 3: Discord ---
+      # - WATCHTOWER_NOTIFICATIONS=discord
+      # - WATCHTOWER_NOTIFICATION_DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/XXX/YYY
+      # - WATCHTOWER_NOTIFICATION_DISCORD_IDENTIFIER=watchtower
+      
+      # --- OPCIÓN 4: Microsoft Teams ---
+      # - WATCHTOWER_NOTIFICATIONS=msteams
+      # - WATCHTOWER_NOTIFICATION_MSTEAMS_HOOK_URL=https://outlook.office.com/webhook/XXX
+      
+      # ========================================================================
+      # CONFIGURACIÓN AVANZADA (Opcional)
+      # ========================================================================
+      
+      # Logging (usar "debug" para troubleshooting)
+      - WATCHTOWER_DEBUG=false
+      - WATCHTOWER_TRACE=false
+      
+      # Zona horaria para logs
+      - TZ=Europe/Madrid
+      
+      # Tiempo de espera para detener contenedores (segundos)
+      - WATCHTOWER_TIMEOUT=10s
+      
+      # Rolling restarts (actualizar contenedores uno a uno si hay varios)
+      - WATCHTOWER_ROLLING_RESTART=false
+    
+    networks:
+      - app-network
+    
+    # Labels para auto-documentación
+    labels:
+      - "description=Watchtower - Auto-actualiza contenedores Docker"
+
+# ============================================================================
+# NETWORKS
+# ============================================================================
+networks:
+  app-network:
+    driver: bridge
+
+# ============================================================================
+# INSTRUCCIONES DE USO
+# ============================================================================
+
+# 1. REEMPLAZAR "usuario" con tu usuario de Docker Hub:
+#    - Línea 13: usuario/fastapi-web:1.5-alpine
+#
+# 2. ELEGIR TAG según tu estrategia:
+#    - alpine              → Última versión siempre (RIESGO: puede romper)
+#    - 1-alpine            → Solo updates dentro de versión major 1.x.x
+#    - 1.5-alpine          → Solo updates de parches 1.5.x (RECOMENDADO)
+#    - 1.5.2-alpine        → Versión fija (NO auto-updates)
+#
+# 3. CONFIGURAR NOTIFICACIONES (opcional):
+#    - Descomenta una de las opciones de notificaciones arriba
+#    - Reemplaza XXX/YYY con tus webhooks reales
+#
+# 4. LEVANTAR SERVICIOS:
+#    docker-compose -f docker-compose.watchtower.yml up -d
+#
+# 5. VERIFICAR QUE FUNCIONA:
+#    docker logs -f watchtower
+#    # Deberías ver: "Checking for new images..."
+#
+# 6. FORZAR CHEQUEO MANUAL (sin esperar intervalo):
+#    docker exec watchtower /watchtower --run-once
+#
+# 7. VER LOGS DE LA APLICACIÓN:
+#    docker logs -f fastapi-web
+#
+# 8. DETENER SERVICIOS:
+#    docker-compose -f docker-compose.watchtower.yml down
+
+# ============================================================================
+# ESTRATEGIAS DE AUTO-UPDATE
+# ============================================================================
+
+# DESARROLLO (actualizaciones agresivas):
+#   - Tag: alpine
+#   - Intervalo: 300 (5 minutos)
+#   - Riesgo: ALTO (puede romper con cambios incompatibles)
+#
+# STAGING (actualizaciones moderadas):
+#   - Tag: 1-alpine
+#   - Intervalo: 1800 (30 minutos)
+#   - Riesgo: MEDIO (solo versiones major compatibles)
+#
+# PRODUCCIÓN (actualizaciones conservadoras):
+#   - Tag: 1.5-alpine
+#   - Intervalo: 3600 (1 hora) o más
+#   - Riesgo: BAJO (solo parches de seguridad/bugfixes)
+#
+# ULTRA-CONSERVADOR (sin auto-updates):
+#   - Tag: 1.5.2-alpine
+#   - Watchtower en modo "monitor-only=true"
+#   - Riesgo: NINGUNO (actualización manual después de testing)
+
+# ============================================================================
+# TROUBLESHOOTING
+# ============================================================================
+
+# Problema: Watchtower no actualiza nada
+# Solución:
+#   1. Verifica que el label "watchtower.enable=true" está presente
+#   2. Verifica que WATCHTOWER_LABEL_ENABLE=true en watchtower
+#   3. Comprueba que hay una nueva imagen en Docker Hub:
+#      docker pull usuario/fastapi-web:1.5-alpine
+#   4. Revisa logs: docker logs watchtower
+
+# Problema: Aplicación se cae después de update
+# Solución:
+#   1. Usa tag más conservador (1.5-alpine en vez de alpine)
+#   2. Agrega healthcheck más robusto
+#   3. Implementa estrategia de rollback automático (ver docs/AUTO-UPDATES-GUIA.md)
+
+# Problema: Muchas notificaciones
+# Solución:
+#   1. Aumenta WATCHTOWER_POLL_INTERVAL (ej: 7200 = 2 horas)
+#   2. Filtra notificaciones solo para errores
+#   3. Agrupa notificaciones diarias
+
+# ============================================================================
+# REFERENCIAS
+# ============================================================================
+
+# - Documentación Watchtower: https://containrrr.dev/watchtower/
+# - Guía completa auto-updates: docs/AUTO-UPDATES-GUIA.md
+# - Sistema de tags: docs/DOCKER-TAGS-EXPLICACION.md
