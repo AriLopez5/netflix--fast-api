@@ -57,9 +57,9 @@ services:
       # CONFIGURACIÓN BÁSICA
       # ========================================================================
       
-      # Chequear cada hora (3600 segundos)
+      # Chequear cada 30 segundos
       # Valores comunes: 300 (5 min), 600 (10 min), 1800 (30 min), 3600 (1 hora)
-      - WATCHTOWER_POLL_INTERVAL=3600
+      - WATCHTOWER_POLL_INTERVAL=30
       
       # Solo actualizar contenedores con label "watchtower.enable=true"
       - WATCHTOWER_LABEL_ENABLE=true
