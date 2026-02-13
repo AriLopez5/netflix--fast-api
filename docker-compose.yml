@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  # ============================================================================
+  # APLICACIÓN FASTAPI
+  # ============================================================================
+  fastapi-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    
+    container_name: nueva-app-fastapi
+    restart: unless-stopped
+    
+    ports:
+      - "8000:8000"
+    
+    environment:
+      - ENV=development
+      - LOG_LEVEL=debug
+    
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
