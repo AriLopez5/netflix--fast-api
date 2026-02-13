@@ -5,8 +5,6 @@ CREATE TABLE Valoraciones (
     usuario_id INT NOT NULL,
     pelicula_id INT NOT NULL,
     nombre_pelicula VARCHAR(255) NOT NULL,
-    genero VARCHAR(100),
-    nota DECIMAL(3,1),
     comentario TEXT,
     fecha_valoracion DATETIME DEFAULT NOW(),
     FOREIGN KEY (usuario_id) REFERENCES Usuarios(id) ON DELETE CASCADE,

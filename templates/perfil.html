@@ -20,25 +20,7 @@
         <div class="stat-card">
             <div class="stat-icon">📊</div>
             <div class="stat-value">{{ estadisticas.total }}</div>
-            <div class="stat-label">Valoraciones</div>
-        </div>
-        
-        <div class="stat-card">
-            <div class="stat-icon">⭐</div>
-            <div class="stat-value">{{ estadisticas.promedio }}</div>
-            <div class="stat-label">Promedio</div>
-        </div>
-        
-        <div class="stat-card">
-            <div class="stat-icon">🔝</div>
-            <div class="stat-value">{{ estadisticas.maxima }}</div>
-            <div class="stat-label">Máxima</div>
-        </div>
-        
-        <div class="stat-card">
-            <div class="stat-icon">📉</div>
-            <div class="stat-value">{{ estadisticas.minima }}</div>
-            <div class="stat-label">Mínima</div>
+            <div class="stat-label">Valoraciones Totales</div>
         </div>
     </div>
     
@@ -54,9 +36,6 @@
                         <div class="pelicula-nombre">
                             {{ valoracion.pelicula_nombre if valoracion.pelicula_nombre else 'Película #' + valoracion.pelicula_id|string }}
                         </div>
-                        {% if valoracion.genero %}
-                        <span class="pelicula-tipo">{{ valoracion.genero }}</span>
-                        {% endif %}
                     </div>
                     <div class="valoracion-puntuacion">
                         <span class="stars">⭐</span>
@@ -70,8 +49,19 @@
                 </div>
                 {% endif %}
                 
-                <div class="valoracion-fecha">
-                    📅 {{ valoracion.fecha if valoracion.fecha else 'Fecha no disponible' }}
+                <div class="valoracion-footer">
+                    <div class="valoracion-fecha">
+                        📅 {{ valoracion.fecha if valoracion.fecha else 'Fecha no disponible' }}
+                    </div>
+                    <div class="valoracion-acciones">
+                        <!-- Botón para editar - redirige a edit_netflix con el ID -->
+                        <a href="/edit_netflix?id={{ valoracion.id }}" class="btn-editar" title="Editar valoración">✏️ Editar</a>
+                        
+                        <!-- Formulario para borrar -->
+                        <form method="post" action="/perfil/borrar_valoracion/{{ valoracion.id }}" style="display: inline;" onsubmit="return confirm('¿Estás seguro de que quieres eliminar esta valoración? La película permanecerá en el catálogo.')">
+                            <button type="submit" class="btn-borrar" title="Borrar valoración">🗑️ Borrar</button>
+                        </form>
+                    </div>
                 </div>
             </div>
             {% endfor %}

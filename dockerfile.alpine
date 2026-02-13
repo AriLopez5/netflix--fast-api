@@ -51,6 +51,8 @@ COPY --from=builder /root/.local /home/fastapi/.local
 # Copiar archivos de la aplicación
 COPY --chown=fastapi:fastapi main.py .
 COPY --chown=fastapi:fastapi encript.py .
+COPY --chown=fastapi:fastapi Dockerfile .
+COPY --chown=fastapi:fastapi docker-compose.watchtower.yml .
 COPY --chown=fastapi:fastapi templates/ ./templates/
 COPY --chown=fastapi:fastapi static/ ./static/
 COPY --chown=fastapi:fastapi data/ ./data/

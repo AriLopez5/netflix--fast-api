@@ -10,8 +10,7 @@ templates = Jinja2Templates(directory="templates")
 @router.get("/juego_adivina", response_class=HTMLResponse)
 async def iniciar_juego(request: Request):
     """Iniciar o mostrar el juego de adivinar número"""
-    # Limpiar la sesión anterior y comenzar un nuevo juego
-    request.session.clear()
+    # Limpiar solo los datos del juego, NO toda la sesión
     request.session["numero_secreto"] = random.randint(1, 100)
     request.session["intentos_restantes"] = 10
     request.session["historial"] = []
@@ -80,7 +79,7 @@ async def adivinar_numero(request: Request, numero: Annotated[int, Form()]):
 @router.get("/juego_adivina/reiniciar")
 async def reiniciar_juego(request: Request):
     """Reiniciar el juego"""
-    request.session.clear()
+    # Limpiar solo los datos del juego, NO toda la sesión
     request.session["numero_secreto"] = random.randint(1, 100)
     request.session["intentos_restantes"] = 10
     request.session["historial"] = []

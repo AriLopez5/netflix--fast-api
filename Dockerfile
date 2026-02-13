@@ -52,8 +52,17 @@ COPY --from=builder /root/.local /home/fastapi/.local
 # Copiar solo los archivos necesarios de la aplicación
 # Usar .dockerignore para excluir archivos automáticamente
 COPY --chown=fastapi:fastapi main.py .
+COPY --chown=fastapi:fastapi encript.py .
+COPY --chown=fastapi:fastapi Dockerfile .
+COPY --chown=fastapi:fastapi docker-compose.watchtower.yml .
 COPY --chown=fastapi:fastapi templates/ ./templates/
 COPY --chown=fastapi:fastapi static/ ./static/
+COPY --chown=fastapi:fastapi data/ ./data/
+COPY --chown=fastapi:fastapi domain/ ./domain/
+COPY --chown=fastapi:fastapi router/ ./router/
+COPY --chown=fastapi:fastapi utils/ ./utils/
+COPY --chown=fastapi:fastapi sql/ ./sql/
+
 
 # Compilar archivos Python para mejorar el tiempo de inicio
 RUN python -m compileall -b /app && \

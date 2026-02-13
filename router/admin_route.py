@@ -70,13 +70,11 @@ async def do_edit_netflix(request: Request,
                               nombre: Annotated[str, Form()],
                               genero: Annotated[str, Form()] = None,
                               calificacion: Annotated[float, Form()] = None,
-                              visto: Annotated[str, Form()] = "",
                               nota: Annotated[str, Form()] = None,
                               ):
     """Página de navegación con enlaces - Solo admin"""
-    # Convertir "si"/"no" a booleano
-    visto_bool = True if visto.lower() == "si" else False
     netflix_repo = AriadnaRepository(database)
-    netflix = Netflix(int(id), tipo, nombre, genero, calificacion, visto_bool, nota)
+    calificacion_int = int(calificacion) if calificacion is not None else None
+    netflix = Netflix(int(id), tipo, nombre, genero, calificacion_int)
     netflix_repo.actualizar_netflix(netflix)
     return templates.TemplateResponse("do_edit_netflix.html", {"request": request})

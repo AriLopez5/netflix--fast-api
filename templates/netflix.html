@@ -21,73 +21,41 @@
     .rating-1 { background: #f8d7da; color: #721c24; }
     .rating-0 { background: #f8d7da; color: #721c24; }
     .rating-na { background: #e9ecef; color: #6c757d; }
-    
-    .visto-si {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 15px;
-        background: #d4edda;
-        color: #155724;
-    }
-    
-    .visto-no {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 15px;
-        background: #f8d7da;
-        color: #721c24;
-    }
 </style>
 
 <div>
-    <h1>Mi Colección de Netflix</h1>
+    <h1>Colección de Netflix</h1>
     
     <!-- Tabla de Películas -->
     <h2 style="color: #667eea; margin-top: 30px; margin-bottom: 15px;">🎬 Películas</h2>
     <table>
         <thead>
             <tr>
-                <th>ID</th>
                 <th>Nombre</th>
                 <th>Género</th>
                 <th>Calificación</th>
-                <th>Visto</th>
-                <th>Nota</th>
             </tr>
         </thead>
         <tbody>
-            {% set peliculas = archivos|selectattr("Tipo", "equalto", "Película")|list %}
+            {% set peliculas = archivos|selectattr("tipo", "equalto", "Película")|list %}
             {% if peliculas %}
                 {% for movie in peliculas %}
                 <tr>
-                    <td>{{ movie.ID }}</td>
-                    <td>{{ movie.Nombre }}</td>
-                    <td>{{ movie.Genero or 'N/A' }}</td>
+                    <td>{{ movie.nombre }}</td>
+                    <td>{{ movie.genero or 'N/A' }}</td>
                     <td>
-                        {% if movie.Calificacion %}
-                            {% set rating_class = "rating-" ~ (movie.Calificacion|int) %}
-                            <span class="rating {{ rating_class }}">{{ movie.Calificacion }}</span>
+                        {% if movie.calificacion_media is not none %}
+                            {% set rating_class = "rating-" ~ (movie.calificacion_media|int) %}
+                            <span class="rating {{ rating_class }}">{{ movie.calificacion_media }}</span>
                         {% else %}
                             <span class="rating rating-na">N/A</span>
                         {% endif %}
                     </td>
-                    <td>
-                        {% if movie.Visto %}
-                            <span class="visto-si">SÍ</span>
-                        {% else %}
-                            <span class="visto-no">NO</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ movie.Nota or '-' }}</td>
                 </tr>
                 {% endfor %}
             {% else %}
                 <tr>
-                    <td colspan="6" class="empty">No hay películas registradas</td>
+                    <td colspan="3" class="empty">No hay películas registradas</td>
                 </tr>
             {% endif %}
         </tbody>
@@ -98,43 +66,31 @@
     <table>
         <thead>
             <tr>
-                <th>ID</th>
                 <th>Nombre</th>
                 <th>Género</th>
                 <th>Calificación</th>
-                <th>Visto</th>
-                <th>Nota</th>
             </tr>
         </thead>
         <tbody>
-            {% set series = archivos|selectattr("Tipo", "equalto", "Serie")|list %}
+            {% set series = archivos|selectattr("tipo", "equalto", "Serie")|list %}
             {% if series %}
                 {% for movie in series %}
                 <tr>
-                    <td>{{ movie.ID }}</td>
-                    <td>{{ movie.Nombre }}</td>
-                    <td>{{ movie.Genero or 'N/A' }}</td>
+                    <td>{{ movie.nombre }}</td>
+                    <td>{{ movie.genero or 'N/A' }}</td>
                     <td>
-                        {% if movie.Calificacion %}
-                            {% set rating_class = "rating-" ~ (movie.Calificacion|int) %}
-                            <span class="rating {{ rating_class }}">{{ movie.Calificacion }}</span>
+                        {% if movie.calificacion_media is not none %}
+                            {% set rating_class = "rating-" ~ (movie.calificacion_media|int) %}
+                            <span class="rating {{ rating_class }}">{{ movie.calificacion_media }}</span>
                         {% else %}
                             <span class="rating rating-na">N/A</span>
                         {% endif %}
                     </td>
-                    <td>
-                        {% if movie.Visto %}
-                            <span class="visto-si">SÍ</span>
-                        {% else %}
-                            <span class="visto-no">NO</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ movie.Nota or '-' }}</td>
                 </tr>
                 {% endfor %}
             {% else %}
                 <tr>
-                    <td colspan="6" class="empty">No hay series registradas</td>
+                    <td colspan="3" class="empty">No hay series registradas</td>
                 </tr>
             {% endif %}
         </tbody>

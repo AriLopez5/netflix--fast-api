@@ -1,7 +1,60 @@
 {% extends "base.html" %}
 {% block content %} 
+<style>
+    .readonly-info {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border-left: 4px solid #667eea;
+    }
+    
+    .readonly-info .info-label {
+        font-size: 12px;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 5px;
+        font-weight: 600;
+    }
+    
+    .readonly-info .info-value {
+        font-size: 16px;
+        color: #2c3e50;
+        font-weight: 500;
+        margin: 5px 0 15px 0;
+        padding: 8px 0;
+    }
+    
+    .readonly-info .info-value.highlight {
+        font-size: 18px;
+        color: #667eea;
+        font-weight: 600;
+    }
+    
+    .readonly-info .info-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 10px;
+    }
+    
+    .section-divider {
+        margin: 25px 0;
+        border: none;
+        border-top: 2px solid #e0e0e0;
+    }
+    
+    .editable-section-title {
+        font-size: 18px;
+        color: #667eea;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+</style>
+
 <div class="form-container">
-    <h1>Editar Película/Serie</h1>
+    <h1>Editar Valoración</h1>
     
     <form method="post" action="/do_edit_netflix" enctype="application/x-www-form-urlencoded">
         <div class="form-group">
@@ -14,7 +67,6 @@
                         data-nombre="{{ item.Nombre }}" 
                         data-genero="{{ item.Genero or '' }}" 
                         data-calificacion="{{ item.Calificacion or '' }}" 
-                        data-visto="{{ 'si' if item.Visto else 'no' }}" 
                         data-nota="{{ item.Nota or '' }}">
                     {{ item.Nombre }} ({{ item.Tipo }})
                 </option>
@@ -23,45 +75,44 @@
         </div>
 
         <div id="edit-form" style="display: none;">
-            <div class="form-group">
-                <label for="tipo">Tipo:</label>
-                <select id="tipo" name="tipo" required>
-                    <option value="">Selecciona un tipo</option>
-                    <option value="Película">Película</option>
-                    <option value="Serie">Serie</option>
-                </select>
+            <!-- Campos ocultos para enviar datos no editables -->
+            <input type="hidden" id="tipo" name="tipo">
+            <input type="hidden" id="nombre" name="nombre">
+            <input type="hidden" id="genero" name="genero">
+            
+            <!-- Información de la película/serie (solo lectura) -->
+            <div class="readonly-info">
+                <div class="info-label">Película/Serie</div>
+                <div class="info-value highlight" id="display-nombre"></div>
+                
+                <div class="info-row">
+                    <div>
+                        <div class="info-label">Tipo</div>
+                        <div class="info-value" id="display-tipo"></div>
+                    </div>
+                    <div>
+                        <div class="info-label">Género</div>
+                        <div class="info-value" id="display-genero"></div>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="nombre">Nombre:</label>
-                <input type="text" id="nombre" name="nombre" placeholder="Introduce el nombre" required>
-            </div>
+            <hr class="section-divider">
+            
+            <div class="editable-section-title">✏️ Editar tu valoración</div>
 
-            <div class="form-group">
-                <label for="genero">Género:</label>
-                <input type="text" id="genero" name="genero" placeholder="Introduce el género">
-            </div>
-
+            <!-- Campos editables -->
             <div class="form-group">
                 <label for="calificacion">Calificación:</label>
                 <input type="number" id="calificacion" name="calificacion" step="0.1" min="0" max="10" placeholder="0.0 - 10.0">
             </div>
 
             <div class="form-group">
-                <label for="visto">Visto:</label>
-                <select id="visto" name="visto">
-                    <option value="">Selecciona</option>
-                    <option value="si">Sí</option>
-                    <option value="no">No</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="nota">Nota:</label>
-                <textarea id="nota" name="nota" rows="4" placeholder="Añade una nota opcional"></textarea>
+                <label for="nota">Comentario:</label>
+                <textarea id="nota" name="nota" rows="4" placeholder="Añade un comentario opcional"></textarea>
             </div>
             
-            <button type="submit">Actualizar</button>
+            <button type="submit">Actualizar Valoración</button>
         </div>
     </form>
 
@@ -81,14 +132,32 @@ function loadItemData() {
     // Mostrar el formulario
     editForm.style.display = 'block';
     
-    // Cargar los datos en los campos
+    // Cargar los datos en los campos hidden (para enviar al backend)
     document.getElementById('tipo').value = selectedOption.dataset.tipo;
     document.getElementById('nombre').value = selectedOption.dataset.nombre;
     document.getElementById('genero').value = selectedOption.dataset.genero;
+    
+    // Mostrar los datos en los campos de visualización (solo lectura)
+    document.getElementById('display-nombre').textContent = selectedOption.dataset.nombre;
+    document.getElementById('display-tipo').textContent = selectedOption.dataset.tipo;
+    document.getElementById('display-genero').textContent = selectedOption.dataset.genero || 'N/A';
+    
+    // Cargar los campos editables
     document.getElementById('calificacion').value = selectedOption.dataset.calificacion;
-    document.getElementById('visto').value = selectedOption.dataset.visto;
     document.getElementById('nota').value = selectedOption.dataset.nota;
 }
+
+// Autoseleccionar si viene el parámetro 'id' en la URL
+window.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const valoracionId = urlParams.get('id');
+    
+    if (valoracionId) {
+        const select = document.getElementById('id');
+        select.value = valoracionId;
+        loadItemData();
+    }
+});
 </script>
 {% endblock %}
 

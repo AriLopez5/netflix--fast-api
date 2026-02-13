@@ -1,11 +1,12 @@
-{%extends "base.html" %}
+{% extends "base.html" %}
 {% block content %}
 <div class="form-container">
         <h1>Insertar Película/Serie </h1>
         
         <div class="info-valoracion">
             <h3>⭐ Información importante</h3>
-            <p>📝 Los datos que ingreses (calificación y nota) se guardarán como tu valoración personal.</p>
+            <p>🎬 La película/serie se agregará al catálogo general.</p>
+            <p>📝 Tu calificación (0-10) y comentario se guardarán como tu valoración personal.</p>
             <p>👤 Podrás ver tu valoración en "Mi Perfil".</p>
         </div>
         
@@ -33,15 +34,6 @@
                 <label for="calificacion">Tu Calificación (0-10):</label>
                 <input type="number" id="calificacion" name="calificacion" step="0.1" min="0" max="10" placeholder="0.0 - 10.0">
                 <small style="color: #666;">Esta será tu valoración personal</small>
-            </div>
-
-            <div class="form-group">
-                <label for="visto">¿La has visto?:</label>
-                <select id="visto" name="visto">
-                    <option value="">Selecciona</option>
-                    <option value="si">Sí</option>
-                    <option value="no">No</option>
-                </select>
             </div>
 
             <div class="form-group">

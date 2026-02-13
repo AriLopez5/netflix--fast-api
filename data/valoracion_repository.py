@@ -2,16 +2,19 @@ from domain.model.Valoracion import Valoracion
 
 
 class ValoracionRepository:
+    def __init__(self, db):
+        self.db = db
 
-    def get_by_usuario_id(self, db, usuario_id: int) -> list[Valoracion]:
-        """Obtiene todas las valoraciones de un usuario"""
-        cursor = db.cursor()
+    def get_by_usuario_id(self, usuario_id: int) -> list[Valoracion]:
+        """Obtiene todas las valoraciones de un usuario con el nombre de la película"""
+        cursor = self.db.cursor()
         cursor.execute("""
-            SELECT id, usuario_id, pelicula_id, nombre_pelicula, genero, 
-                   nota, comentario, fecha_valoracion
-            FROM Valoraciones
-            WHERE usuario_id = %s
-            ORDER BY fecha_valoracion DESC
+            SELECT v.id, v.usuario_id, v.pelicula_id, v.puntuacion,
+                   v.comentario, v.fecha_valoracion, n.nombre, n.tipo, n.genero
+            FROM Valoraciones v
+            LEFT JOIN Netflix n ON v.pelicula_id = n.id
+            WHERE v.usuario_id = %s
+            ORDER BY v.fecha_valoracion DESC
         """, (usuario_id,))
         valoraciones_db = cursor.fetchall()
         cursor.close()
@@ -22,22 +25,23 @@ class ValoracionRepository:
                 val[0],  # id
                 val[1],  # usuario_id
                 val[2],  # pelicula_id
-                float(val[5]) if val[5] else 0.0,  # nota
-                val[6],  # comentario
-                str(val[7]) if val[7] else None  # fecha_valoracion
+                val[3],  # puntuacion
+                val[4],  # comentario
+                str(val[5]) if val[5] else None  # fecha_valoracion
             )
-            # Agregar datos de la película guardados en la tabla
-            valoracion.pelicula_nombre = val[3]
-            valoracion.genero = val[4]
+            # Agregar información de la película obtenida del JOIN
+            valoracion.pelicula_nombre = val[6]
+            valoracion.pelicula_tipo = val[7] if val[7] else 'N/A'
+            valoracion.pelicula_genero = val[8] if val[8] else 'N/A'
             valoraciones.append(valoracion)
         
         return valoraciones
 
-    def get_by_id(self, db, valoracion_id: int) -> Valoracion:
+    def get_by_id(self, valoracion_id: int) -> Valoracion:
         """Obtiene una valoración por su ID"""
-        cursor = db.cursor()
+        cursor = self.db.cursor()
         cursor.execute("""
-            SELECT id, usuario_id, pelicula_id, puntuacion, comentario, fecha
+            SELECT id, usuario_id, pelicula_id, puntuacion, comentario, fecha_valoracion
             FROM Valoraciones 
             WHERE id = %s
         """, (valoracion_id,))
@@ -48,13 +52,13 @@ class ValoracionRepository:
             return Valoracion(val[0], val[1], val[2], val[3], val[4], val[5])
         return None
 
-    def get_all(self, db) -> list[Valoracion]:
+    def get_all(self) -> list[Valoracion]:
         """Obtiene todas las valoraciones"""
-        cursor = db.cursor()
+        cursor = self.db.cursor()
         cursor.execute("""
-            SELECT id, usuario_id, pelicula_id, puntuacion, comentario, fecha
+            SELECT id, usuario_id, pelicula_id, puntuacion, comentario, fecha_valoracion
             FROM Valoraciones
-            ORDER BY fecha DESC
+            ORDER BY fecha_valoracion DESC
         """)
         valoraciones_db = cursor.fetchall()
         cursor.close()
@@ -65,54 +69,76 @@ class ValoracionRepository:
         
         return valoraciones
 
-    def insertar_valoracion(self, db, valoracion: Valoracion) -> None:
+    def insertar_valoracion(self, valoracion: Valoracion) -> None:
         """Inserta una nueva valoración"""
-        cursor = db.cursor()
+        cursor = self.db.cursor()
         cursor.execute("""
-            INSERT INTO Valoraciones (usuario_id, pelicula_id, nombre_pelicula, genero, nota, comentario, fecha_valoracion)
-            VALUES (%s, %s, %s, %s, %s, %s, NOW())
+            INSERT INTO Valoraciones (usuario_id, pelicula_id, puntuacion, comentario, fecha_valoracion)
+            VALUES (%s, %s, %s, %s, NOW())
             ON DUPLICATE KEY UPDATE 
-                nombre_pelicula = VALUES(nombre_pelicula),
-                genero = VALUES(genero),
-                nota = VALUES(nota),
+                puntuacion = VALUES(puntuacion),
                 comentario = VALUES(comentario),
                 fecha_valoracion = NOW()
         """, (
             valoracion.usuario_id,
             valoracion.pelicula_id,
-            valoracion.pelicula_nombre,
-            valoracion.genero,
             valoracion.puntuacion,
             valoracion.comentario
         ))
         
-        db.commit()
+        self.db.commit()
         cursor.close()
 
-    def actualizar_valoracion(self, db, valoracion: Valoracion) -> None:
-        """Actualiza una valoración existente"""
-        cursor = db.cursor()
+    def actualizar_valoracion(self, valoracion: Valoracion, usuario_id: int = None) -> bool:
+        """Actualiza una valoración existente. Si se proporciona usuario_id, verifica que sea el dueño.
+        Retorna True si se actualizó correctamente, False si no tiene permisos."""
+        cursor = self.db.cursor()
+        
+        # Si se proporciona usuario_id, verificar que sea el dueño de la valoración
+        if usuario_id is not None:
+            cursor.execute("SELECT usuario_id FROM Valoraciones WHERE id = %s", (valoracion.id,))
+            resultado = cursor.fetchone()
+            
+            if not resultado or resultado[0] != usuario_id:
+                cursor.close()
+                return False  # No tiene permisos para actualizar esta valoración
+        
         cursor.execute("""
             UPDATE Valoraciones 
-            SET puntuacion = %s, comentario = %s
+            SET puntuacion = %s, comentario = %s, fecha_valoracion = NOW()
             WHERE id = %s
         """, (valoracion.puntuacion, valoracion.comentario, valoracion.id))
         
-        db.commit()
+        self.db.commit()
         cursor.close()
+        return True
 
-    def borrar_valoracion(self, db, valoracion_id: int) -> None:
-        """Elimina una valoración"""
-        cursor = db.cursor()
+    def borrar_valoracion(self, valoracion_id: int, usuario_id: int = None) -> bool:
+        """Elimina una valoración. Si se proporciona usuario_id, verifica que sea el dueño.
+        Solo borra el comentario y valoración del usuario, la película permanece en la base de datos.
+        Retorna True si se eliminó correctamente, False si no tiene permisos."""
+        cursor = self.db.cursor()
+        
+        # Si se proporciona usuario_id, verificar que sea el dueño de la valoración
+        if usuario_id is not None:
+            cursor.execute("SELECT usuario_id FROM Valoraciones WHERE id = %s", (valoracion_id,))
+            resultado = cursor.fetchone()
+            
+            if not resultado or resultado[0] != usuario_id:
+                cursor.close()
+                return False  # No tiene permisos para borrar esta valoración
+        
+        # Elimina solo la valoración del usuario, la película sigue en su tabla correspondiente
         cursor.execute("DELETE FROM Valoraciones WHERE id = %s", (valoracion_id,))
-        db.commit()
+        self.db.commit()
         cursor.close()
+        return True
 
-    def get_by_usuario_y_pelicula(self, db, usuario_id: int, pelicula_id: int) -> Valoracion:
+    def get_by_usuario_y_pelicula(self, usuario_id: int, pelicula_id: int) -> Valoracion:
         """Obtiene la valoración de un usuario para una película específica"""
-        cursor = db.cursor()
+        cursor = self.db.cursor()
         cursor.execute("""
-            SELECT id, usuario_id, pelicula_id, puntuacion, comentario, fecha
+            SELECT id, usuario_id, pelicula_id, puntuacion, comentario, fecha_valoracion
             FROM Valoraciones 
             WHERE usuario_id = %s AND pelicula_id = %s
         """, (usuario_id, pelicula_id))
@@ -123,24 +149,18 @@ class ValoracionRepository:
             return Valoracion(val[0], val[1], val[2], val[3], val[4], val[5])
         return None
 
-    def get_estadisticas_usuario(self, db, usuario_id: int) -> dict:
+    def get_estadisticas_usuario(self, usuario_id: int) -> dict:
         """Obtiene estadísticas de valoraciones de un usuario"""
-        cursor = db.cursor()
+        cursor = self.db.cursor()
         
         cursor.execute("""
-            SELECT COUNT(*) as total, 
-                   AVG(nota) as promedio,
-                   MAX(nota) as maxima,
-                   MIN(nota) as minima
+            SELECT COUNT(*) as total
             FROM Valoraciones 
-            WHERE usuario_id = %s AND nota IS NOT NULL
+            WHERE usuario_id = %s
         """, (usuario_id,))
         stats = cursor.fetchone()
         cursor.close()
         
         return {
-            'total': stats[0] if stats else 0,
-            'promedio': round(stats[1], 1) if stats and stats[1] else 0,
-            'maxima': stats[2] if stats else 0,
-            'minima': stats[3] if stats else 0
+            'total': stats[0] if stats else 0
         }
